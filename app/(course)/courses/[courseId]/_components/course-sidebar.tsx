@@ -3,6 +3,7 @@ import { Chapter, Course, UserProgress } from "@prisma/client"
 import { redirect } from "next/navigation";
 
 import { CourseSidebarItem } from "./course-sidebar-item";
+import { db } from "@/lib/db";
 
 interface CourseSidebarProps {
     course: Course & {
@@ -23,6 +24,15 @@ export const CourseSidebar = async ({
         return redirect("/");
     }
 
+    const purchase = await db.purchase.findUnique({
+        where: {
+          userId_courseId: {
+            userId,
+            courseId: course.id,
+          }
+        }
+      });
+
     return (
         <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">
             <div className="p-8 flex flex-col border-b">
@@ -39,7 +49,7 @@ export const CourseSidebar = async ({
                         label={chapter.title}
                         isCompleted={!!chapter.userProgress?.[0]?.isCompleted}
                         courseId={course.id}
-                        isLocked={!chapter.isFree }
+                        isLocked={!chapter.isFree  && !purchase}
                     />
                 ))}
             </div>
