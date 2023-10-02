@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { CourseSidebarItem } from "./course-sidebar-item";
 import { db } from "@/lib/db";
+import { CourseProgress } from "@/components/course-progress";
 
 interface CourseSidebarProps {
     course: Course & {
@@ -26,12 +27,12 @@ export const CourseSidebar = async ({
 
     const purchase = await db.purchase.findUnique({
         where: {
-          userId_courseId: {
-            userId,
-            courseId: course.id,
-          }
+            userId_courseId: {
+                userId,
+                courseId: course.id,
+            }
         }
-      });
+    });
 
     return (
         <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">
@@ -40,6 +41,14 @@ export const CourseSidebar = async ({
                     {course.title}
                 </h1>
                 {/* Check purchase and add progress */}
+                {purchase && (
+                    <div className="mt-10">
+                        <CourseProgress
+                            variant="success"
+                            value={progressCount}
+                        />
+                    </div>
+                )}
             </div>
             <div className="flex flex-col w-full">
                 {course.chapters.map((chapter) => (
@@ -49,7 +58,7 @@ export const CourseSidebar = async ({
                         label={chapter.title}
                         isCompleted={!!chapter.userProgress?.[0]?.isCompleted}
                         courseId={course.id}
-                        isLocked={!chapter.isFree  && !purchase}
+                        isLocked={!chapter.isFree && !purchase}
                     />
                 ))}
             </div>
